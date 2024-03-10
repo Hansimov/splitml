@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "splitml"
+version = "0.0.1"
+authors = [
+    { name="Hansimov" },
+]
+description = "Split Markup Language (HTML and Markdown) to Groups and Nodes"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [ "purehtml" ]
+
+[project.urls]
+Homepage = "https://github.com/Hansimov/splitml"
+Issues = "https://github.com/Hansimov/splitml/issues"
+
+[tool.setuptools.packages.find]
+exclude = [".github/", "src/splitml/samples/"]

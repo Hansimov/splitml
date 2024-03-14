@@ -11,10 +11,18 @@ def count_tokens(text):
 
 def stat_tokens(nodes):
     key = "text_tokens"
-    total_tokens = sum([item[key] for item in nodes])
+    counts = [item[key] for item in nodes]
+    total_tokens = sum(counts)
     avg_tokens = round(total_tokens / len(nodes))
-    max_tokens = max([item[key] for item in nodes])
-    min_tokens = min([item[key] for item in nodes])
+    max_tokens = max(counts)
+    min_tokens = min(counts)
     logger.mesg(
         f"  - Tokens: {total_tokens} (total), {avg_tokens} (avg), {max_tokens} (max), {min_tokens} (min)"
     )
+    statistics = {
+        "total": total_tokens,
+        "avg": avg_tokens,
+        "max": max_tokens,
+        "min": min_tokens,
+    }
+    return statistics

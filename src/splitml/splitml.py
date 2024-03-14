@@ -64,9 +64,8 @@ class HTMLSplitter:
             logger.warn(warn_msg)
             raise UnicodeDecodeError(warn_msg)
 
-    def split_html_file(self, html_path):
+    def split_html_str(self, html_str):
         results = []
-        html_str = self.read_html_file(html_path)
         soup = BeautifulSoup(html_str, "html.parser")
         for element in soup.find_all(SPLIT_TAGS):
             element_str = str(element)
@@ -79,9 +78,21 @@ class HTMLSplitter:
             logger.success(f"Found element: {element.name}")
             results.append(item)
 
-        for item in results:
-            pprint(item, width=120)
         return results
+
+    def split_html_file(self, html_path):
+        html_str = self.read_html_file(html_path)
+        return self.split_html_str(html_str)
+
+
+def split_html_str(html_str):
+    splitter = HTMLSplitter()
+    return splitter.split_html_str(html_str)
+
+
+def split_html_file(html_path):
+    splitter = HTMLSplitter()
+    return splitter.split_html_file(html_path)
 
 
 if __name__ == "__main__":

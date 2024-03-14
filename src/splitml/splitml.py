@@ -2,7 +2,9 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 from pprint import pprint
+from purehtml import purify_html_str
 from tclogger import logger
+from .tokenizers import count_tokens
 
 BODY_TAGS = ["html", "body"]
 GROUP_TAGS = ["div", "section", "p"]
@@ -69,11 +71,21 @@ class HTMLSplitter:
         soup = BeautifulSoup(html_str, "html.parser")
         for element in soup.find_all(SPLIT_TAGS):
             element_str = str(element)
+            markdown_str = purify_html_str(
+                element_str,
+                output_format="markdown",
+                keep_format_tags=False,
+                keep_group_tags=False,
+                math_style="latex",
+            )
             item = {
+                "html": element_str,
+                "text": markdown_str,
                 "tag": element.name,
                 "tag_type": self.get_tag_type(element),
-                "html": element_str,
-                "length": len(element_str),
+                "html_len": len(element_str),
+                "text_len": len(markdown_str),
+                "text_tokens": count_tokens(markdown_str),
             }
             logger.success(f"Found element: {element.name}")
             results.append(item)
@@ -101,5 +113,6 @@ if __name__ == "__main__":
     splitter = HTMLSplitter()
     for html_path in html_paths:
         logger.note(f"Processing: {html_path}")
-        splitter.split_html_file(html_path)
+        result = splitter.split_html_file(html_path)
+        pprint(result, width=150, sort_dicts=False)
     # python -m splitml.splitml

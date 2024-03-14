@@ -1,6 +1,6 @@
 [project]
 name = "splitml"
-version = "0.0.2"
+version = "0.1"
 authors = [
     { name="Hansimov" },
 ]
@@ -12,7 +12,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [ "purehtml" ]
+dependencies = [ "purehtml", "markdown2", "beautifulsoup4" ]
 
 [project.urls]
 Homepage = "https://github.com/Hansimov/splitml"

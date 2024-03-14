@@ -5,7 +5,7 @@ from pprint import pprint
 from purehtml import purify_html_str
 from tclogger import logger
 from .constants import SPLIT_TAGS, TAG_TYPE_MAP
-from .tokenizers import count_tokens
+from .stats import count_tokens, stat_tokens
 
 
 class HTMLSplitter:
@@ -85,4 +85,7 @@ if __name__ == "__main__":
         logger.note(f"Processing: {html_path}")
         result = splitter.split_html_file(html_path)
         pprint(result, width=150, sort_dicts=False)
+        logger.success(f"{len(result)} doc units.")
+        stat_tokens(result)
+
     # python -m splitml.splitml

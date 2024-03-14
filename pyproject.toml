@@ -12,7 +12,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [ "purehtml", "markdown2", "beautifulsoup4" ]
+dependencies = [ "purehtml", "markdown2", "beautifulsoup4", "tiktoken" ]
 
 [project.urls]
 Homepage = "https://github.com/Hansimov/splitml"

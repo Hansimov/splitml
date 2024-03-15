@@ -52,16 +52,16 @@ class HTMLSplitter:
         return markdown2.markdown(md_str)
 
     def check_format(func):
-        def wrapper(self, html_str, format="html"):
+        def wrapper(self, html_str, format=None):
             if format == "markdown":
                 html_str = self.md2html(html_str)
-                format = "html"
+            format = "html"
             return func(self, html_str, format)
 
         return wrapper
 
     @check_format
-    def split_html_str(self, html_str, format="html"):
+    def split_html_str(self, html_str, format=None):
         results = []
         soup = BeautifulSoup(html_str, "html.parser")
         for idx, element in enumerate(soup.find_all(SPLIT_TAGS)):
@@ -89,34 +89,48 @@ class HTMLSplitter:
 
         return results
 
-    def split_html_file(self, html_path):
+    def split_html_file(self, html_path, format=None):
+        ext = Path(html_path).suffix
+        if not format:
+            if ext == ".md":
+                format = "markdown"
+            else:
+                format = "html"
+        else:
+            format = format
+
         html_str = self.read_html_file(html_path)
-        return self.split_html_str(html_str)
+        return self.split_html_str(html_str, format=format)
 
 
-def split_html_str(html_str: str):
-    return HTMLSplitter().split_html_str(html_str)
+def split_html_str(html_str: str, format=None):
+    return HTMLSplitter().split_html_str(html_str, format=format)
 
 
-def split_html_file(html_path: Union[Path, str]):
-    return HTMLSplitter().split_html_file(html_path)
+def split_html_file(html_path: Union[Path, str], format=None):
+    return HTMLSplitter().split_html_file(html_path, format=format)
 
 
-def chunk_html_str(html_str: str):
-    nodes = HTMLSplitter().split_html_str(html_str)
+def chunk_html_str(html_str: str, format=None):
+    nodes = HTMLSplitter().split_html_str(html_str, format=format)
     grouped_nodes = NodesGrouper().group_nodes(nodes)
     return grouped_nodes
 
 
-def chunk_html_file(html_path: Union[Path, str]):
-    nodes = HTMLSplitter().split_html_file(html_path)
+def chunk_html_file(html_path: Union[Path, str], format=None):
+    nodes = HTMLSplitter().split_html_file(html_path, format=format)
     grouped_nodes = NodesGrouper().group_nodes(nodes)
     return grouped_nodes
 
 
 if __name__ == "__main__":
     html_root = Path(__file__).parent / "samples"
-    html_paths = sorted(list(html_root.glob("*.md.html")))[:2]
+
+    file_pattern = "*.html.md"
+    html_paths = sorted(
+        list(html_root.glob(file_pattern)),
+        key=lambda x: x.name.lower(),
+    )[:2]
     splitter = HTMLSplitter()
     grouper = NodesGrouper()
     for html_path in html_paths:
@@ -127,13 +141,5 @@ if __name__ == "__main__":
         grouped_nodes = grouper.group_nodes(nodes)
         logger.success(f"  - {len(grouped_nodes)} doc groups.")
         stat_tokens(grouped_nodes)
-
-    splitter = HTMLSplitter()
-    nodes = splitter.split_html_str(
-        "## Hello\n<p>I am a robot</p>",
-        format="markdown",
-    )
-    logger.mesg(nodes)
-    stat_tokens(nodes)
 
     # python -m splitml.splitml

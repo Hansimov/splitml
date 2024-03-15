@@ -1,19 +1,26 @@
+from typing import Literal
 from .stats import count_tokens
 
 
 class NodesGrouper:
-    def group_nodes_by_order(self, nodes, max_tokens=1024, min_tokens=100):
+    def group_nodes_by_order(
+        self,
+        nodes,
+        max_tokens: list[int] = [128, 256, 512, 1024, 2048],
+        overlap_node_count: int = 1,
+    ):
         groups = []
-        group = []
-        for idx, node in enumerate(nodes):
-            node_tokens = node["text_tokens"]
-            group_tokens = sum([nd["text_tokens"] for nd in group])
-            if group_tokens + node_tokens > max_tokens:
+        for max_token in max_tokens:
+            group = []
+            for idx, node in enumerate(nodes):
+                node_tokens = node["text_tokens"]
+                group_tokens = sum([nd["text_tokens"] for nd in group])
+                if group_tokens + node_tokens > max_token:
+                    groups.append(group)
+                    group = []
+                group.append(node)
+            if group:
                 groups.append(group)
-                group = []
-            group.append(node)
-        if group:
-            groups.append(group)
 
         return groups
 
@@ -22,7 +29,7 @@ class NodesGrouper:
         for group in groups:
             text = "\n\n".join([node["text"] for node in group])
             html = "\n\n".join([node["html"] for node in group])
-            group_tokens = sum([node["text_tokens"] for node in group])
+            group_tokens = count_tokens(text)
             node_idxs = [node["node_idx"] for node in group]
             grouped_nodes.append(
                 {
@@ -37,7 +44,11 @@ class NodesGrouper:
             )
         return grouped_nodes
 
-    def group_nodes(self, nodes, max_tokens=1024, min_tokens=100):
-        groups = self.group_nodes_by_order(nodes, max_tokens, min_tokens)
+    def group_nodes(
+        self,
+        nodes,
+        max_tokens: list[int] = [128, 256, 512, 1024, 2048],
+    ):
+        groups = self.group_nodes_by_order(nodes, max_tokens=max_tokens)
         grouped_nodes = self.combine_groups(groups)
         return grouped_nodes

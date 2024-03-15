@@ -3,11 +3,14 @@ from .stats import count_tokens
 
 
 class NodesGrouper:
+    DEFAULT_MAX_TOKENS = [128, 512, 1024]
+    DEFAULT_OVERLAP_NODE_COUNT = 2
+
     def group_nodes_by_order(
         self,
         nodes,
-        max_tokens: list[int] = [128, 256, 512, 1024, 2048],
-        overlap_node_count: int = 1,
+        max_tokens: list[int] = DEFAULT_MAX_TOKENS,
+        overlap_node_count: int = DEFAULT_OVERLAP_NODE_COUNT,
     ):
         groups = []
         for max_token in max_tokens:
@@ -17,7 +20,10 @@ class NodesGrouper:
                 group_tokens = sum([nd["text_tokens"] for nd in group])
                 if group_tokens + node_tokens > max_token:
                     groups.append(group)
-                    group = []
+                    if overlap_node_count > 0:
+                        group = group[-overlap_node_count:]
+                    else:
+                        group = []
                 group.append(node)
             if group:
                 groups.append(group)
@@ -47,8 +53,11 @@ class NodesGrouper:
     def group_nodes(
         self,
         nodes,
-        max_tokens: list[int] = [128, 256, 512, 1024, 2048],
+        max_tokens: list[int] = DEFAULT_MAX_TOKENS,
+        overlap_node_count: int = DEFAULT_OVERLAP_NODE_COUNT,
     ):
-        groups = self.group_nodes_by_order(nodes, max_tokens=max_tokens)
+        groups = self.group_nodes_by_order(
+            nodes, max_tokens=max_tokens, overlap_node_count=overlap_node_count
+        )
         grouped_nodes = self.combine_groups(groups)
         return grouped_nodes

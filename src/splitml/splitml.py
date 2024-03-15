@@ -129,17 +129,17 @@ if __name__ == "__main__":
     file_pattern = "*.html.md"
     html_paths = sorted(
         list(html_root.glob(file_pattern)),
-        key=lambda x: x.name.lower(),
+        key=lambda x: str(x).lower(),
     )[:2]
     splitter = HTMLSplitter()
     grouper = NodesGrouper()
     for html_path in html_paths:
-        logger.note(f"> Processing: {html_path}")
+        logger.note(f"> Processing: {html_path.name}")
         nodes = splitter.split_html_file(html_path)
-        logger.success(f"  - {len(nodes)} doc nodes.")
+        logger.success(f"  - {len(nodes)} nodes.")
         stat_tokens(nodes)
         grouped_nodes = grouper.group_nodes(nodes)
-        logger.success(f"  - {len(grouped_nodes)} doc groups.")
+        logger.success(f"  - {len(grouped_nodes)} grouped nodes.")
         stat_tokens(grouped_nodes)
 
     # python -m splitml.splitml

@@ -1,9 +1,11 @@
 from pathlib import Path
+from typing import Union
 
 from bs4 import BeautifulSoup
 from pprint import pprint
 from purehtml import purify_html_str
 from tclogger import logger
+
 from .constants import SPLIT_TAGS, TAG_TYPE_MAP
 from .stats import count_tokens, stat_tokens
 from .groupers import NodesGrouper
@@ -77,14 +79,24 @@ class HTMLSplitter:
         return self.split_html_str(html_str)
 
 
-def split_html_str(html_str):
-    splitter = HTMLSplitter()
-    return splitter.split_html_str(html_str)
+def split_html_str(html_str: str):
+    return HTMLSplitter().split_html_str(html_str)
 
 
-def split_html_file(html_path):
-    splitter = HTMLSplitter()
-    return splitter.split_html_file(html_path)
+def split_html_file(html_path: Union[Path, str]):
+    return HTMLSplitter().split_html_file(html_path)
+
+
+def chunk_html_str(html_str: str):
+    nodes = HTMLSplitter().split_html_str(html_str)
+    grouped_nodes = NodesGrouper().group_nodes(nodes)
+    return grouped_nodes
+
+
+def chunk_html_file(html_path: Union[Path, str]):
+    nodes = HTMLSplitter().split_html_file(html_path)
+    grouped_nodes = NodesGrouper().group_nodes(nodes)
+    return grouped_nodes
 
 
 if __name__ == "__main__":

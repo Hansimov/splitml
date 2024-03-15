@@ -4,7 +4,7 @@ from .stats import count_tokens
 
 class NodesGrouper:
     DEFAULT_MAX_TOKENS = [128, 512, 1024]
-    DEFAULT_OVERLAP_NODE_COUNT = 2
+    DEFAULT_OVERLAP_NODE_COUNT = 1
 
     def group_nodes_by_order(
         self,
@@ -32,11 +32,16 @@ class NodesGrouper:
 
     def combine_groups(self, groups):
         grouped_nodes = []
+        node_idxs_list = []
         for group in groups:
             text = "\n\n".join([node["text"] for node in group])
             html = "\n\n".join([node["html"] for node in group])
             group_tokens = count_tokens(text)
             node_idxs = [node["node_idx"] for node in group]
+            if node_idxs in node_idxs_list:
+                continue
+            else:
+                node_idxs_list.append(node_idxs)
             grouped_nodes.append(
                 {
                     "html": html,
@@ -45,9 +50,10 @@ class NodesGrouper:
                     "html_len": len(html),
                     "text_len": len(text),
                     "text_tokens": group_tokens,
-                    "element_idxs": node_idxs,
+                    "node_idxs": node_idxs,
                 }
             )
+
         return grouped_nodes
 
     def group_nodes(

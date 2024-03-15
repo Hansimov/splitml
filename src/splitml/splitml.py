@@ -37,10 +37,19 @@ class HTMLSplitter:
             logger.warn(warn_msg)
             raise UnicodeDecodeError(warn_msg)
 
+    def is_atomized(self, element):
+        # check if any children of element has tag in SPLIT_TAGS
+        for child in element.descendants:
+            if child.name in SPLIT_TAGS:
+                return False
+        return True
+
     def split_html_str(self, html_str):
         results = []
         soup = BeautifulSoup(html_str, "html.parser")
-        for idx, element in enumerate(soup.find_all(SPLIT_TAGS, recursive=False)):
+        for idx, element in enumerate(soup.find_all(SPLIT_TAGS)):
+            if not self.is_atomized(element):
+                continue
             element_str = str(element)
             markdown_str = purify_html_str(
                 element_str,
@@ -80,17 +89,16 @@ def split_html_file(html_path):
 
 if __name__ == "__main__":
     html_root = Path(__file__).parent / "samples"
-    html_paths = list(html_root.glob("*.md.html"))
+    html_paths = sorted(list(html_root.glob("*.md.html")))[:2]
     splitter = HTMLSplitter()
     grouper = NodesGrouper()
     for html_path in html_paths:
-        logger.note(f"Processing: {html_path}")
+        logger.note(f"> Processing: {html_path}")
         nodes = splitter.split_html_file(html_path)
-        # pprint(nodes, width=150, sort_dicts=False)
-        logger.success(f"{len(nodes)} doc nodes.")
+        logger.success(f"  - {len(nodes)} doc nodes.")
         stat_tokens(nodes)
         grouped_nodes = grouper.group_nodes(nodes)
-        logger.success(f"{len(grouped_nodes)} doc groups.")
+        logger.success(f"  - {len(grouped_nodes)} doc groups.")
         stat_tokens(grouped_nodes)
 
     # python -m splitml.splitml

@@ -1,3 +1,5 @@
+import markdown2
+
 from pathlib import Path
 from typing import Union
 
@@ -46,7 +48,20 @@ class HTMLSplitter:
                 return False
         return True
 
-    def split_html_str(self, html_str):
+    def md2html(self, md_str):
+        return markdown2.markdown(md_str)
+
+    def check_format(func):
+        def wrapper(self, html_str, format="html"):
+            if format == "markdown":
+                html_str = self.md2html(html_str)
+                format = "html"
+            return func(self, html_str, format)
+
+        return wrapper
+
+    @check_format
+    def split_html_str(self, html_str, format="html"):
         results = []
         soup = BeautifulSoup(html_str, "html.parser")
         for idx, element in enumerate(soup.find_all(SPLIT_TAGS)):
@@ -112,5 +127,13 @@ if __name__ == "__main__":
         grouped_nodes = grouper.group_nodes(nodes)
         logger.success(f"  - {len(grouped_nodes)} doc groups.")
         stat_tokens(grouped_nodes)
+
+    splitter = HTMLSplitter()
+    nodes = splitter.split_html_str(
+        "## Hello\n<p>I am a robot</p>",
+        format="markdown",
+    )
+    logger.mesg(nodes)
+    stat_tokens(nodes)
 
     # python -m splitml.splitml

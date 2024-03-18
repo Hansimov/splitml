@@ -38,6 +38,7 @@ class NodesGrouper:
             html = "\n\n".join([node["html"] for node in group])
             group_tokens = count_tokens(text)
             node_idxs = [node["node_idx"] for node in group]
+            node_tags = [node["tag"] for node in group]
             if node_idxs in node_idxs_list:
                 continue
             else:
@@ -46,11 +47,11 @@ class NodesGrouper:
                 {
                     "html": html,
                     "text": text,
-                    "tag_type": "grouped",
                     "html_len": len(html),
                     "text_len": len(text),
                     "text_tokens": group_tokens,
                     "node_idxs": node_idxs,
+                    "node_tags": node_tags,
                 }
             )
 
